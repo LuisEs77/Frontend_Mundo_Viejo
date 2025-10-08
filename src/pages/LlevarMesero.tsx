@@ -1,4 +1,4 @@
-import { useState } from 'react';
+ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Platillo {
@@ -10,89 +10,117 @@ interface Platillo {
 const LlevarMesero = () => {
   const navigate = useNavigate();
   const [categoriaActual, setCategoriaActual] = useState('Platos Fuertes');
-  const [preOrden, setPreOrden] = useState<Platillo[]>([
-    { id: 2, nombre: 'Platillo 2', cantidad: 3 }
-  ]);
+  const [preOrden, setPreOrden] = useState<Platillo[]>([]);
 
   const handleRegresar = () => {
     navigate('/mesero');
   };
 
-  const handleConfirmar = () => {
-    console.log('Pre-orden confirmada:', preOrden);
-    // Aquí se enviaría al backend
+  const handleCerrarCuenta = () => {
+    console.log('Cerrando cuenta con pedido:', preOrden);
+    // Aquí se navegaría a pagar cuenta o se procesaría el pedido
+    navigate('/pagar-cuenta');
   };
 
   const handlePlatilloClick = (numero: number) => {
-    console.log(`Platillo ${numero} seleccionado`);
-    // Aquí se agregaría a la pre-orden
+    const platilloExistente = preOrden.find(p => p.id === numero);
+    if (platilloExistente) {
+      setPreOrden(preOrden.map(p =>
+        p.id === numero ? { ...p, cantidad: p.cantidad + 1 } : p
+      ));
+    } else {
+      setPreOrden([...preOrden, {
+        id: numero,
+        nombre: `Platillo ${numero}`,
+        cantidad: 1
+      }]);
+    }
+  };
+
+  const handleEliminar = (id: number) => {
+    setPreOrden(preOrden.filter(p => p.id !== id));
+  };
+
+  const handleIncrementar = (id: number) => {
+    setPreOrden(preOrden.map(p => 
+      p.id === id ? { ...p, cantidad: p.cantidad + 1 } : p
+    ));
+  };
+
+  const handleDecrementar = (id: number) => {
+    setPreOrden(preOrden.map(p => 
+      p.id === id ? { ...p, cantidad: Math.max(1, p.cantidad - 1) } : p
+    )); // Mínimo 1, no eliminar
   };
 
   const platillos = [2, 3, 4, 6, 7, 8, 10, 11, 12];
 
   return (
-    <div className="min-h-screen bg-gray-600 flex">
-      {/* Sidebar izquierdo */}
-      <aside className="w-32 bg-gris-oscuro flex flex-col p-3 gap-3">
+    <div className="min-h-screen bg-gray-600 flex flex-col lg:flex-row">
+      {/* Sidebar izquierdo - Más ancho como en VistaMesas */}
+      <aside className="w-full lg:w-56 xl:w-64 bg-gris-oscuro flex lg:flex-col p-5 items-center pt-6 overflow-x-auto lg:overflow-x-visible">
         <button
           onClick={handleRegresar}
-          className="px-4 py-3 bg-crema text-gris-oscuro rounded-full text-sm font-normal hover:bg-[#e8e8d0] transition-all"
+          className="w-full px-6 py-3 bg-crema text-gris-oscuro rounded-full text-base font-medium hover:bg-[#e8e8d0] transition-all whitespace-nowrap shadow-md mb-8"
         >
           Regresar
         </button>
         
-        <button 
-          onClick={() => setCategoriaActual('Platos Fuertes')}
-          className={`px-3 py-3 rounded-full text-sm font-normal transition-all ${
-            categoriaActual === 'Platos Fuertes' 
-              ? 'bg-terracota text-white' 
-              : 'bg-terracota/80 text-white hover:bg-terracota'
-          }`}
-        >
-          Platos Fuertes
-        </button>
-        
-        <button 
-          onClick={() => setCategoriaActual('Postres')}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all"
-        >
-          Postres
-        </button>
-        
-        <button 
-          onClick={() => setCategoriaActual('Bebidas')}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all"
-        >
-          Bebidas
-        </button>
-        
-        <button 
-          onClick={() => setCategoriaActual('Extras')}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all"
-        >
-          Extras
-        </button>
-        
-        <button 
-          onClick={() => setCategoriaActual('Complementos')}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all"
-        >
-          Complementos
-        </button>
-        
-        <button className="px-3 py-3 bg-terracota text-white rounded-full text-xs font-normal hover:bg-[#8d4d3a] transition-all mt-2">
-          algo más...
-        </button>
+        {/* Espacio adicional antes de categorías */}
+        <div className="flex flex-col gap-3 w-full mt-16">
+          <button 
+            onClick={() => setCategoriaActual('Platos Fuertes')}
+            className={`w-full px-6 py-3 rounded-lg text-base font-medium transition-all whitespace-nowrap shadow-md ${
+              categoriaActual === 'Platos Fuertes' 
+                ? 'bg-terracota text-white' 
+                : 'bg-terracota/80 text-white hover:bg-terracota'
+            }`}
+          >
+            Platos Fuertes
+          </button>
+          
+          <button 
+            onClick={() => setCategoriaActual('Postres')}
+            className="w-full px-6 py-3 bg-terracota text-white rounded-lg text-base font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap shadow-md"
+          >
+            Postres
+          </button>
+          
+          <button 
+            onClick={() => setCategoriaActual('Bebidas')}
+            className="w-full px-6 py-3 bg-terracota text-white rounded-lg text-base font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap shadow-md"
+          >
+            Bebidas
+          </button>
+          
+          <button 
+            onClick={() => setCategoriaActual('Extras')}
+            className="w-full px-6 py-3 bg-terracota text-white rounded-lg text-base font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap shadow-md"
+          >
+            Extras
+          </button>
+          
+          <button 
+            onClick={() => setCategoriaActual('Complementos')}
+            className="w-full px-6 py-3 bg-terracota text-white rounded-lg text-base font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap shadow-md"
+          >
+            Complementos
+          </button>
+          
+          <button className="w-full px-6 py-3 bg-terracota text-white rounded-lg text-sm font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap shadow-md">
+            algo más...
+          </button>
+        </div>
       </aside>
 
-      {/* Contenido principal - Platillos */}
-      <div className="flex-1 p-6">
-        <div className="grid grid-cols-3 gap-4 max-w-3xl">
+      {/* Contenido principal - Platillos más grandes */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-8 overflow-auto">
+        <div className="grid gap-6 lg:gap-8 max-w-5xl w-full" style={{ gridTemplateColumns: `repeat(${Math.min(platillos.length, 3)}, minmax(0, 1fr))` }}>
           {platillos.map((numero) => (
             <button
               key={numero}
               onClick={() => handlePlatilloClick(numero)}
-              className="aspect-[3/2] bg-terracota text-white rounded-2xl text-xl font-semibold hover:bg-[#8d4d3a] hover:scale-105 transition-all shadow-lg flex items-center justify-center"
+              className="aspect-[3/2] bg-terracota text-white rounded-2xl text-xl sm:text-2xl lg:text-3xl font-semibold hover:bg-[#8d4d3a] hover:scale-105 transition-all shadow-lg flex items-center justify-center"
             >
               Platillo {numero}
             </button>
@@ -100,40 +128,64 @@ const LlevarMesero = () => {
         </div>
       </div>
 
-      {/* Panel derecho - Pre-Orden */}
-      <aside className="w-64 bg-crema p-4 flex flex-col">
+      {/* Panel derecho - Pedido anticipado */}
+      <aside className="w-full lg:w-72 bg-crema p-4 sm:p-5 flex flex-col order-first lg:order-last">
         <div className="mb-4">
-          <h2 className="text-2xl font-semibold text-gris-oscuro mb-1">Pre-Orden</h2>
-          <div className="flex gap-6 text-sm text-gris-oscuro font-medium">
-            <span>Nombre:</span>
-            <span>Cantidad</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-gris-oscuro mb-3 text-center">PRE-ORDEN</h2>
+          <div className="flex justify-between text-sm sm:text-base text-gris-oscuro font-semibold px-2">
+            <span className="flex-1">Nombre platillo</span>
+            <span className="w-20 text-center">Cantidad</span>
           </div>
         </div>
 
         {/* Lista de items en pre-orden */}
-        <div className="flex-1 space-y-2">
-          {preOrden.map((item) => (
-            <div key={item.id} className="flex items-center justify-between">
-              <div className="flex-1 bg-terracota text-white px-4 py-2 rounded-full text-sm">
-                {item.nombre}
-              </div>
-              <div className="w-12 text-center">
-                <div className="flex flex-col items-center">
-                  <button className="text-gris-oscuro text-xs">▲</button>
-                  <span className="text-gris-oscuro font-semibold">{item.cantidad}</span>
-                  <button className="text-gris-oscuro text-xs">▼</button>
+        <div className="flex-1 space-y-2 overflow-auto max-h-40 lg:max-h-none mb-4">
+          {preOrden.length === 0 ? (
+            <p className="text-center text-gray-500 text-sm py-8">No hay platillos seleccionados</p>
+          ) : (
+            preOrden.map((item) => (
+              <div key={item.id} className="flex items-center justify-between gap-3">
+                <div className="flex-1 bg-terracota text-white px-4 py-2.5 rounded-full text-sm sm:text-base font-medium">
+                  {item.nombre}
                 </div>
+                <div className="w-20 text-center flex flex-col items-center gap-1">
+                  <button 
+                    onClick={() => handleIncrementar(item.id)}
+                    className="text-gris-oscuro text-lg hover:text-terracota transition-colors"
+                  >
+                    ▲
+                  </button>
+                  <span className="text-gris-oscuro font-bold text-lg">{item.cantidad}</span>
+                  <button 
+                    onClick={() => handleDecrementar(item.id)}
+                    className="text-gris-oscuro text-lg hover:text-terracota transition-colors"
+                  >
+                    ▼
+                  </button>
+                </div>
+                <button
+                  onClick={() => handleEliminar(item.id)}
+                  className="ml-2 px-2 py-1 rounded-full bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition-colors shadow"
+                  title="Quitar platillo"
+                >
+                  ✕
+                </button>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
-        {/* Botón Confirmar */}
+        {/* Botón Cerrar cuenta */}
         <button
-          onClick={handleConfirmar}
-          className="w-full mt-4 py-3 bg-gray-500 text-white rounded-full text-base font-medium hover:bg-gray-600 transition-all"
+          onClick={handleCerrarCuenta}
+          disabled={preOrden.length === 0}
+          className={`w-full py-3.5 rounded-full text-base sm:text-lg font-semibold transition-all shadow-lg ${
+            preOrden.length === 0 
+              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+              : 'bg-gray-600 text-white hover:bg-gray-700 hover:scale-105'
+          }`}
         >
-          Confirmar
+          Cerrar cuenta
         </button>
       </aside>
     </div>

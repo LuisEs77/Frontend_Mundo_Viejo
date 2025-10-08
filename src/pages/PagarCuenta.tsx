@@ -9,25 +9,31 @@ interface Consumo {
 
 const PagarCuenta = () => {
   const navigate = useNavigate();
-  const [consumos] = useState<Consumo[]>([
-    { platillo: 'Platillo 2', cantidad: 3, subtotal: 150 }
-  ]);
+  const [cuentas, setCuentas] = useState<number[]>([1]);
+  const [consumosPorCuenta] = useState<{ [key: number]: Consumo[] }>({
+    1: [{ platillo: 'Platillo 2', cantidad: 3, subtotal: 150 }],
+    2: [{ platillo: 'Platillo 5', cantidad: 2, subtotal: 100 }],
+    3: []
+  });
+  // Por defecto mostramos la cuenta 1
+  const cuentaActiva = 1;
 
   const handleRegresar = () => {
-    navigate(-1);
+    navigate('/mesero');
   };
 
-  const handleCuenta1 = () => {
-    console.log('Cuenta 1 seleccionada');
-  };
-
-  const handleCuenta2 = () => {
-    console.log('Cuenta 2 seleccionada');
+  const handleCuentaClick = (numeroCuenta: number) => {
+    console.log(`Cuenta ${numeroCuenta} seleccionada`);
+    // Navegar a la vista de platillos con el número de cuenta
+    navigate('/ordenar', { state: { numeroCuenta } });
   };
 
   const handleAgregar = () => {
-    console.log('Agregar item');
+    const nuevaCuenta = cuentas.length + 1;
+    setCuentas([...cuentas, nuevaCuenta]);
   };
+  
+  const consumosActuales = consumosPorCuenta[cuentaActiva] || [];
 
   const handleImprimirTicket = () => {
     console.log('Imprimiendo ticket...');
@@ -35,52 +41,52 @@ const PagarCuenta = () => {
   };
 
   const calcularTotal = () => {
-    return consumos.reduce((acc, item) => acc + item.subtotal, 0);
+    return consumosActuales.reduce((acc, item) => acc + item.subtotal, 0);
   };
 
   return (
-    <div className="min-h-screen bg-gray-600 flex">
-      {/* Sidebar izquierdo */}
-      <aside className="w-32 bg-gris-oscuro flex flex-col p-3 gap-3">
+    <div className="min-h-screen bg-gray-600 flex flex-col lg:flex-row">
+      {/* Sidebar izquierdo - Navegación más grande */}
+      <aside className="w-full lg:w-56 xl:w-64 bg-gris-oscuro flex lg:flex-col p-4 sm:p-6 gap-2 overflow-x-auto lg:overflow-x-visible">
         <button
           onClick={handleRegresar}
-          className="px-4 py-3 bg-crema text-gris-oscuro rounded-full text-sm font-normal hover:bg-[#e8e8d0] transition-all"
+          className="w-full px-6 py-3 bg-crema text-gris-oscuro rounded-full text-base font-medium hover:bg-[#e8e8d0] transition-all whitespace-nowrap mb-8"
         >
           Regresar
         </button>
         
-        <button 
-          onClick={handleCuenta1}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all"
-        >
-          Cuenta1
-        </button>
-        
-        <button 
-          onClick={handleCuenta2}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all"
-        >
-          Cuenta2
-        </button>
-        
-        <button 
-          onClick={handleAgregar}
-          className="px-3 py-3 bg-terracota text-white rounded-full text-sm font-normal hover:bg-[#8d4d3a] transition-all mt-auto"
-        >
-          Agregar
-        </button>
+        <div className="flex lg:flex-col gap-2 w-full mt-16 flex-1">
+          <div className="flex lg:flex-col gap-2 w-full overflow-y-auto lg:max-h-[60vh]">
+            {cuentas.map((numeroCuenta) => (
+              <button 
+                key={numeroCuenta}
+                onClick={() => handleCuentaClick(numeroCuenta)}
+                className="w-full px-4 py-3 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap"
+              >
+                Cuenta {numeroCuenta}
+              </button>
+            ))}
+          </div>
+          
+          <button 
+            onClick={handleAgregar}
+            className="w-full px-4 py-3 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all whitespace-nowrap lg:mt-auto"
+          >
+            Agregar
+          </button>
+        </div>
       </aside>
 
       {/* Contenido principal */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="bg-crema rounded-2xl p-8 w-full max-w-2xl shadow-2xl">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div className="bg-crema rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-2xl shadow-2xl">
           {/* Título */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-semibold text-gris-oscuro mb-2">Total consumido</h1>
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gris-oscuro mb-2">Total consumido - Cuenta {cuentaActiva}</h1>
           </div>
 
           {/* Header de tabla */}
-          <div className="grid grid-cols-4 gap-4 mb-4 text-center text-gris-oscuro font-medium text-sm px-4">
+          <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-3 sm:mb-4 text-center text-gris-oscuro font-medium text-xs sm:text-sm px-2 sm:px-4">
             <div>Nombre:</div>
             <div>Platillo</div>
             <div>Cantidad</div>
@@ -88,35 +94,44 @@ const PagarCuenta = () => {
           </div>
 
           {/* Items consumidos */}
-          <div className="space-y-3 mb-8">
-            {consumos.map((item, index) => (
-              <div key={index} className="grid grid-cols-4 gap-4 items-center px-4">
-                <div className="col-span-2 bg-terracota text-white px-6 py-3 rounded-full text-center font-medium">
-                  {item.platillo}
+          <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8 overflow-auto max-h-60 sm:max-h-none">
+            {consumosActuales.length === 0 ? (
+              <p className="text-center text-gray-500 text-sm py-8">No hay consumos registrados en esta cuenta</p>
+            ) : (
+              consumosActuales.map((item, index) => (
+                <div key={index} className="grid grid-cols-4 gap-2 sm:gap-4 items-center px-2 sm:px-4">
+                  <div className="col-span-2 bg-terracota text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full text-center font-medium text-xs sm:text-sm">
+                    {item.platillo}
+                  </div>
+                  <div className="text-center text-gris-oscuro font-semibold text-sm sm:text-base lg:text-lg">
+                    {item.cantidad}
+                  </div>
+                  <div className="text-center text-gris-oscuro font-semibold text-sm sm:text-base lg:text-lg">
+                    Q {item.subtotal}
+                  </div>
                 </div>
-                <div className="text-center text-gris-oscuro font-semibold text-lg">
-                  {item.cantidad}
-                </div>
-                <div className="text-center text-gris-oscuro font-semibold text-lg">
-                  Q {item.subtotal}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Botón Imprimir ticket */}
-          <div className="flex justify-center mt-12">
+          <div className="flex justify-center mt-8 sm:mt-10 lg:mt-12">
             <button
               onClick={handleImprimirTicket}
-              className="px-16 py-4 bg-gray-400 text-white rounded-full text-lg font-medium hover:bg-gray-500 transition-all shadow-lg"
+              disabled={consumosActuales.length === 0}
+              className={`px-8 sm:px-12 lg:px-16 py-3 sm:py-4 rounded-full text-base sm:text-lg font-medium transition-all shadow-lg ${
+                consumosActuales.length === 0
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-400 text-white hover:bg-gray-500'
+              }`}
             >
               Imprimir ticket
             </button>
           </div>
 
           {/* Total (si quisieras mostrarlo) */}
-          {consumos.length > 1 && (
-            <div className="mt-6 text-right text-2xl font-bold text-gris-oscuro">
+          {consumosActuales.length > 1 && (
+            <div className="mt-4 sm:mt-6 text-right text-xl sm:text-2xl font-bold text-gris-oscuro">
               Total: Q {calcularTotal()}
             </div>
           )}

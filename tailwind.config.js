@@ -15,6 +15,9 @@ export default {
         'naranja-ocupado': '#FF5733',
         'gris-deshabilitado': '#999999',
       },
+      fontFamily: {
+        'sans': ['ABeeZee', 'sans-serif'],
+      },
     },
   },
   plugins: [],

@@ -1,0 +1,17 @@
+/* Paleta de Colores - Mundo Viejo Restaurante */
+:root {
+  /* Colores principales */
+  --verde-oscuro: #4C6442;
+  --terracota: #A15C49;
+  --crema: #F5F5DC;
+  --gris-oscuro: #333333;
+  
+  /* Colores de estado de mesas */
+  --verde-disponible: #7FB069;
+  --naranja-ocupado: #FF5733;
+  --gris-deshabilitado: #999999;
+  
+  /* Colores adicionales */
+  --blanco: #FFFFFF;
+  --negro: #000000;
+}

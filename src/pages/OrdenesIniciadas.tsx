@@ -70,83 +70,80 @@ const OrdenesIniciadas = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200">
-      {/* Header */}
-      <div className="bg-white px-6 py-4 border-b border-gray-300">
-        <h1 className="text-2xl font-normal text-gray-400">Ordenes Iniciadas</h1>
-      </div>
-
+    <div className="min-h-screen bg-[#5a5a5a] flex flex-col">
       {/* Contenido principal */}
-      <div className="p-6">
-        {/* Grid de órdenes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {ordenes.map((orden, index) => (
-            <div key={index} className="bg-crema rounded-lg shadow-lg overflow-hidden">
-              {/* Header de la orden */}
-              <div className={`px-4 py-2 flex justify-between items-center text-white text-sm ${
-                orden.tipo === 'llevar' ? 'bg-cyan-400' : 'bg-gris-oscuro'
-              }`}>
-                <span className="font-medium">{orden.mesa}</span>
-                <span className="font-medium">{orden.timestamp}</span>
-              </div>
-
-              {/* Contenido de la orden */}
-              <div className="p-4">
-                <div className="mb-3">
-                  <p className="text-sm text-gris-oscuro font-medium">Orden #{orden.id}</p>
+      <div className="flex-1 p-4 sm:p-6 flex flex-col">
+        {/* Grid de órdenes - tarjetas más grandes y centradas */}
+        <div className="flex justify-center items-start mb-6 flex-1 pt-8 sm:pt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl w-full px-4">
+            {ordenes.map((orden, index) => (
+              <div key={index} className="bg-crema rounded-xl shadow-xl overflow-hidden flex flex-col w-full max-w-[360px] mx-auto">
+                {/* Header de la orden */}
+                <div className={`px-5 py-4 flex justify-between items-center text-white text-base sm:text-lg ${
+                  orden.tipo === 'llevar' ? 'bg-cyan-400' : 'bg-gris-oscuro'
+                }`}>
+                  <span className="font-semibold">{orden.mesa}</span>
+                  <span className="font-semibold">{orden.timestamp}</span>
                 </div>
 
-                {/* Items */}
-                <div className="space-y-2 mb-4">
-                  {orden.items.map((item, idx) => (
-                    <div key={idx} className="bg-verde-disponible text-white px-4 py-3 rounded-lg flex justify-between items-center">
-                      <span className="text-sm font-medium flex-1">{item.nombre}</span>
-                      <span className="text-lg font-bold ml-2">{item.cantidad}</span>
-                    </div>
-                  ))}
-                </div>
+                {/* Contenido de la orden */}
+                <div className="p-5 flex flex-col flex-1">
+                  <div className="mb-4 text-center">
+                    <p className="text-base sm:text-lg text-gris-oscuro font-semibold">Orden #{orden.id}</p>
+                  </div>
 
-                {/* Botón Finalizar */}
-                <button
-                  onClick={() => handleFinalizar(orden.id)}
-                  className="w-full py-2 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all"
-                >
-                  Finalizar
-                </button>
+                  {/* Items */}
+                  <div className="space-y-3 mb-5 flex-1">
+                    {orden.items.map((item, idx) => (
+                      <div key={idx} className="bg-verde-disponible text-white px-5 py-4 rounded-xl flex justify-between items-center">
+                        <span className="text-sm sm:text-base font-medium flex-1 text-center">{item.nombre}</span>
+                        <span className="text-2xl font-bold ml-3">{item.cantidad}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Botón Finalizar */}
+                  <button
+                    onClick={() => handleFinalizar(orden.id)}
+                    className="w-full py-4 bg-terracota text-white rounded-full text-lg font-semibold hover:bg-[#8d4d3a] transition-all shadow-lg"
+                  >
+                    Finalizar
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Botones inferiores */}
-        <div className="flex gap-4 justify-between max-w-2xl">
-          <div className="flex gap-4">
+        {/* Botones inferiores - alineados con el margen de las tarjetas */}
+        <div className="flex justify-between items-center mt-auto pt-6 max-w-6xl w-full mx-auto px-4">
+          <div className="flex gap-3 sm:gap-4">
             <button
               onClick={handleMesas}
-              className="px-8 py-3 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all"
+              className="px-8 sm:px-10 py-3 sm:py-4 bg-terracota text-white rounded-full text-base sm:text-lg font-medium hover:bg-[#8d4d3a] transition-all shadow-lg"
             >
               Mesas
             </button>
             
             <button
               onClick={handleRegresarOrden}
-              className="px-8 py-3 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all"
+              className="px-8 sm:px-10 py-3 sm:py-4 bg-terracota text-white rounded-full text-base sm:text-lg font-medium hover:bg-[#8d4d3a] transition-all shadow-lg"
             >
               Regresar orden
             </button>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
             <button
               onClick={handleOrdenesRecibidas}
-              className="px-8 py-3 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all"
+              className="px-8 sm:px-10 py-3 sm:py-4 bg-terracota text-white rounded-full text-base sm:text-lg font-medium hover:bg-[#8d4d3a] transition-all shadow-lg"
             >
               Ordenes Recibidas
             </button>
             
             <button
               onClick={handleOrdenesFinalizadas}
-              className="px-8 py-3 bg-terracota text-white rounded-full text-base font-medium hover:bg-[#8d4d3a] transition-all"
+              className="px-8 sm:px-10 py-3 sm:py-4 bg-terracota text-white rounded-full text-base sm:text-lg font-medium hover:bg-[#8d4d3a] transition-all shadow-lg"
             >
               Ordenes Finalizadas
             </button>
