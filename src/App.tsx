@@ -8,6 +8,8 @@ import OrdenarMesero from './pages/OrdenarMesero';
 import PagarCuenta from './pages/PagarCuenta';
 
 function App() {
+  console.log('App component loaded');
+  
   return (
     <Router>
       <Routes>
