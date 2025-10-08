@@ -25,14 +25,14 @@ const VistaMesas = () => {
   const [filtro, setFiltro] = useState<'disponible' | 'ocupado' | 'seleccionada' | 'todos'>('disponible');
 
   const handleRegresar = () => {
-    navigate('/mesero');
+    navigate('/pasillos');
   };
 
   const handleMesaClick = (mesaId: number) => {
     const mesa = mesas.find(m => m.id === mesaId);
     if (mesa && mesa.estado !== 'deshabilitado') {
       console.log(`Mesa ${mesa.numero} clickeada - Estado: ${mesa.estado}`);
-      // Aquí se implementará la lógica para seleccionar mesa
+      navigate('/ordenar');
     }
   };
 

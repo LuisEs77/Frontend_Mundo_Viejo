@@ -10,11 +10,12 @@ const VistaMesero = () => {
 
   const handleLlevar = () => {
     console.log('Opción LLEVAR seleccionada');
+    navigate('/llevar');
   };
 
   const handleMesas = () => {
-    console.log('Navegando a vista de mesas');
-    navigate('/mesas');
+    console.log('Navegando a selección de pasillos');
+    navigate('/pasillos');
   };
 
   return (
