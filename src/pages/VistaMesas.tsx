@@ -25,7 +25,7 @@ const VistaMesas = () => {
   ]);
 
   const handleRegresar = () => {
-    navigate('/pasillos');
+    navigate('/mesero');
   };
 
   const handleMesaClick = (mesaId: number) => {

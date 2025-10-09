@@ -14,8 +14,8 @@ const VistaMesero = () => {
   };
 
   const handleMesas = () => {
-    console.log('Navegando a selección de pasillos');
-    navigate('/pasillos');
+    console.log('Navegando directamente a mesas');
+    navigate('/mesas');
   };
 
   return (
