@@ -7,7 +7,18 @@ interface Consumo {
   subtotal: number;
 }
 
-const PagarCuenta = () => {
+interface PagarCuentaProps {
+  esCajero?: boolean;
+}
+
+
+const mesasConCuentas = [
+  { mesa: 1, nombre: 'Mesa 1', cuentas: [1] },
+  { mesa: 2, nombre: 'Mesa 2', cuentas: [2] },
+  { mesa: 3, nombre: 'Mesa 3', cuentas: [3] },
+];
+
+const PagarCuenta = ({ esCajero = false }: PagarCuentaProps) => {
   const navigate = useNavigate();
   const [cuentas, setCuentas] = useState<number[]>([1]);
   const [consumosPorCuenta] = useState<{ [key: number]: Consumo[] }>({
@@ -15,17 +26,29 @@ const PagarCuenta = () => {
     2: [{ platillo: 'Platillo 5', cantidad: 2, subtotal: 100 }],
     3: []
   });
-  // Por defecto mostramos la cuenta 1
-  const cuentaActiva = 1;
+  const [mesaSeleccionada, setMesaSeleccionada] = useState<number | null>(esCajero ? null : 1);
+  const cuentaActiva = mesaSeleccionada || 1;
 
   const handleRegresar = () => {
-    navigate('/mesero');
+    if (esCajero) {
+      if (mesaSeleccionada !== null) {
+        setMesaSeleccionada(null);
+      } else {
+        navigate('/cajero');
+      }
+    } else if (mesaSeleccionada !== null) {
+      navigate('/mesas');
+    } else {
+      navigate('/mesero');
+    }
   };
 
   const handleCuentaClick = (numeroCuenta: number) => {
-    console.log(`Cuenta ${numeroCuenta} seleccionada`);
-    // Navegar a la vista de platillos con el número de cuenta
-    navigate('/ordenar', { state: { numeroCuenta } });
+    if (esCajero && mesaSeleccionada === null) {
+      setMesaSeleccionada(numeroCuenta);
+    } else {
+      navigate('/ordenar', { state: { numeroCuenta } });
+    }
   };
 
   const handleAgregar = () => {
@@ -44,6 +67,40 @@ const PagarCuenta = () => {
     return consumosActuales.reduce((acc, item) => acc + item.subtotal, 0);
   };
 
+  // Si es cajero y no ha seleccionado mesa, mostrar solo las mesas con cuentas abiertas
+  if (esCajero && mesaSeleccionada === null) {
+    return (
+      <div className="min-h-screen bg-gray-600 flex flex-col lg:flex-row">
+        {/* Sidebar izquierdo - Mesas con cuentas abiertas */}
+        <aside className="w-full lg:w-56 xl:w-64 bg-gris-oscuro flex lg:flex-col p-4 sm:p-6 gap-2 overflow-x-auto lg:overflow-x-visible">
+          <button
+            onClick={handleRegresar}
+            className="w-full px-6 py-3 bg-crema text-gris-oscuro rounded-full text-base font-medium hover:bg-[#e8e8d0] transition-all whitespace-nowrap mb-8"
+          >
+            Regresar
+          </button>
+          <div className="flex flex-col gap-4 w-full mt-16 flex-1">
+            <h1 className="text-xl font-semibold text-crema mb-4 text-center">Mesas con cuentas abiertas</h1>
+            {mesasConCuentas.map((mesa) => (
+              <button
+                key={mesa.mesa}
+                onClick={() => handleCuentaClick(mesa.mesa)}
+                className="w-full px-6 py-4 bg-terracota text-white rounded-xl text-lg font-medium hover:bg-[#8d4d3a] transition-all shadow"
+              >
+                {mesa.nombre}
+              </button>
+            ))}
+          </div>
+        </aside>
+        {/* Panel derecho vacío hasta seleccionar mesa */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          {/* Espacio vacío o mensaje opcional */}
+        </div>
+      </div>
+    );
+  }
+
+  // Vista normal de pagar cuenta
   return (
     <div className="min-h-screen bg-gray-600 flex flex-col lg:flex-row">
       {/* Sidebar izquierdo - Navegación más grande */}

@@ -7,13 +7,22 @@ interface Platillo {
   cantidad: number;
 }
 
-const LlevarMesero = () => {
+
+interface LlevarMeseroProps {
+  esCajero?: boolean;
+}
+
+const LlevarMesero = ({ esCajero = false }: LlevarMeseroProps) => {
   const navigate = useNavigate();
   const [categoriaActual, setCategoriaActual] = useState('Platos Fuertes');
   const [preOrden, setPreOrden] = useState<Platillo[]>([]);
 
   const handleRegresar = () => {
-    navigate('/mesero');
+    if (esCajero) {
+      navigate('/cajero');
+    } else {
+      navigate('/mesero');
+    }
   };
 
   const handleCerrarCuenta = () => {

@@ -9,7 +9,7 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login:', { usuario, contraseña });
-    navigate('/mesero');
+  navigate('/cajero');
   };
 
   return (
