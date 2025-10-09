@@ -1,54 +1,31 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
-interface Mesa {
-  id: number;
-  numero: number;
-  estado: 'disponible' | 'ocupado' | 'seleccionada' | 'deshabilitado';
-}
+import { useMesasByPasillo } from '../hooks/useApi';
 
 const VistaMesas = () => {
   const navigate = useNavigate();
   const { pasillo } = useParams<{ pasillo: string }>();
   const pasilloActual = pasillo || '1';
   
-  // Todas las mesas empiezan como disponibles
-  const [mesas, setMesas] = useState<Mesa[]>([
-    { id: 1, numero: 1, estado: 'disponible' },
-    { id: 2, numero: 2, estado: 'disponible' },
-    { id: 3, numero: 3, estado: 'disponible' },
-    { id: 4, numero: 4, estado: 'disponible' },
-    { id: 5, numero: 5, estado: 'disponible' },
-    { id: 6, numero: 6, estado: 'disponible' },
-    { id: 7, numero: 7, estado: 'disponible' },
-    { id: 8, numero: 8, estado: 'disponible' },
-  ]);
+  const { mesas: mesasFromAPI, loading, error } = useMesasByPasillo(pasilloActual);
+  const [mesaSeleccionada, setMesaSeleccionada] = useState<number | null>(null);
 
   const handleRegresar = () => {
     navigate('/mesero');
   };
 
   const handleMesaClick = (mesaId: number) => {
-    setMesas(prevMesas => 
-      prevMesas.map(mesa => {
-        if (mesa.id === mesaId) {
-          // Ciclo de estados: disponible -> seleccionada -> ocupado -> disponible
-          let nuevoEstado: 'disponible' | 'ocupado' | 'seleccionada' | 'deshabilitado';
-          if (mesa.estado === 'disponible') {
-            nuevoEstado = 'seleccionada';
-            // Navegar a ordenar cuando se selecciona una mesa disponible
-            setTimeout(() => navigate('/ordenar'), 100);
-          } else if (mesa.estado === 'seleccionada') {
-            nuevoEstado = 'ocupado';
-          } else {
-            nuevoEstado = 'disponible';
-          }
-          console.log(`Mesa ${mesa.numero}: ${mesa.estado} -> ${nuevoEstado}`);
-          return { ...mesa, estado: nuevoEstado };
-        }
-        return mesa;
-      })
-    );
+    const mesa = mesasFromAPI.find(m => m.id === mesaId);
+    if (!mesa) return;
+
+    if (mesa.estado === 'disponible') {
+      setMesaSeleccionada(mesaId);
+      // Navegar a ordenar cuando se selecciona una mesa disponible
+      navigate('/ordenar', { state: { mesaId, mesaNumero: mesa.numero } });
+    } else if (mesa.estado === 'ocupado') {
+      // Si la mesa está ocupada, podríamos mostrar las órdenes de esa mesa
+      navigate('/ordenes-iniciadas', { state: { mesaId } });
+    }
   };
 
   const getEstadoColor = (estado: string) => {
@@ -127,25 +104,32 @@ const VistaMesas = () => {
 
       {/* Contenido principal - Grid de mesas más grandes */}
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="grid grid-cols-4 gap-8 w-full max-w-6xl">
-          {mesas.map((mesa) => (
-            <button
-              key={mesa.id}
-              onClick={() => handleMesaClick(mesa.id)}
-              disabled={mesa.estado === 'deshabilitado'}
-              className={`
-                aspect-[5/4] rounded-2xl 
-                flex flex-col items-center justify-center 
-                text-white text-3xl font-bold
-                shadow-xl transition-all duration-200
-                ${getEstadoColor(mesa.estado)}
-                ${mesa.estado !== 'deshabilitado' ? 'hover:scale-105 hover:shadow-2xl' : ''}
-              `}
-            >
-              <div className="text-3xl">Mesa {mesa.numero}</div>
-            </button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-white text-xl">Cargando mesas...</div>
+        ) : error ? (
+          <div className="text-red-300 text-xl">Error: {error}</div>
+        ) : (
+          <div className="grid grid-cols-4 gap-8 w-full max-w-6xl">
+            {mesasFromAPI.map((mesa) => (
+              <button
+                key={mesa.id}
+                onClick={() => handleMesaClick(mesa.id)}
+                disabled={mesa.estado === 'deshabilitado'}
+                className={`
+                  aspect-[5/4] rounded-2xl 
+                  flex flex-col items-center justify-center 
+                  text-white text-3xl font-bold
+                  shadow-xl transition-all duration-200
+                  ${getEstadoColor(mesa.estado)}
+                  ${mesa.estado !== 'deshabilitado' ? 'hover:scale-105 hover:shadow-2xl' : ''}
+                `}
+              >
+                <div className="text-3xl">Mesa {mesa.numero}</div>
+                <div className="text-sm mt-1 capitalize">{mesa.estado}</div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
