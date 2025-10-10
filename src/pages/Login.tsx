@@ -14,7 +14,8 @@ const Login = () => {
   // SEGURIDAD: Limpiar cualquier sesión existente al entrar al login
   useEffect(() => {
     logout(); // Esto limpia localStorage y estado
-  }, [logout]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

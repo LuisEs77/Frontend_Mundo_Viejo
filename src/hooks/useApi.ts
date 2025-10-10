@@ -58,7 +58,12 @@ export const useMesasByPasillo = (pasillo: string) => {
       setMesas(data);
       setError(null);
     } catch (err: any) {
-      setError(err.message || 'Error al cargar las mesas');
+      if (err?.response?.status === 404) {
+        setMesas([]);
+        setError(null);
+      } else {
+        setError(err.message || 'Error al cargar las mesas');
+      }
     } finally {
       setLoading(false);
     }

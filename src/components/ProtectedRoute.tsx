@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import type { ReactNode } from 'react';
+import type { User } from '../services/api';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -8,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-  const { isAuthenticated, user, loading } = useAuth();
+  const { isAuthenticated, user, loading, token } = useAuth();
 
   console.log('ProtectedRoute - isAuthenticated:', isAuthenticated);
   console.log('ProtectedRoute - user:', user);
@@ -24,14 +25,29 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     );
   }
 
+  const storedToken = token ?? localStorage.getItem('token');
+  const storedUserRaw = localStorage.getItem('user');
+  const fallbackUser = storedUserRaw ? (JSON.parse(storedUserRaw) as User) : null;
+  const effectiveUser = user ?? fallbackUser;
+
+  // Si existe token pero todavía no se ha restaurado el usuario, continuar mostrando loading
+  if (storedToken && !user) {
+    console.log('ProtectedRoute - esperando restaurar usuario desde almacenamiento');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Cargando...</div>
+      </div>
+    );
+  }
+
   // Redireccionar al login si no está autenticado
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !storedToken) {
     console.log('Usuario no autenticado, redirigiendo al login');
     return <Navigate to="/" replace />;
   }
 
   // VERIFICACIÓN ESTRICTA DE ROLES - SEGURIDAD MÁXIMA
-  const userRoles = user?.roles || [];
+  const userRoles = effectiveUser?.roles || [];
   console.log('ProtectedRoute - userRoles:', userRoles);
   
   // Si se requiere un rol específico, verificar que lo tenga
@@ -48,9 +64,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
       } else if (userRoles.includes('mesero')) {
         return <Navigate to="/mesero" replace />;
       } else {
-        // Rol no válido - volver al login y limpiar sesión
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // Rol no válido - volver al login
         return <Navigate to="/" replace />;
       }
     }
@@ -61,9 +75,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
                         userRoles.includes('mesero');
     
     if (!hasValidRole) {
-      // Sin rol válido - limpiar sesión y volver al login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Sin rol válido - volver al login
       return <Navigate to="/" replace />;
     }
   }

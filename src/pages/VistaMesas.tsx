@@ -108,6 +108,8 @@ const VistaMesas = () => {
           <div className="text-white text-xl">Cargando mesas...</div>
         ) : error ? (
           <div className="text-red-300 text-xl">Error: {error}</div>
+        ) : mesasFromAPI.length === 0 ? (
+          <div className="text-white text-xl">No hay mesas registradas para este pasillo.</div>
         ) : (
           <div className="grid grid-cols-4 gap-8 w-full max-w-6xl">
             {mesasFromAPI.map((mesa) => (

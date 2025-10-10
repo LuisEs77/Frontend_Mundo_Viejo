@@ -27,19 +27,33 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? (JSON.parse(storedUser) as User) : null;
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // SEGURIDAD: NO cargar sesión automáticamente
-    // Los usuarios DEBEN hacer login cada vez que abran la aplicación
-    
-    // Limpiar cualquier sesión previa al iniciar la aplicación
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    setLoading(false);
+    console.log('AuthContext - estado actualizado', { token, user });
+  }, [token, user]);
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'token') {
+        setToken(event.newValue);
+      }
+
+      if (event.key === 'user') {
+        setUser(event.newValue ? (JSON.parse(event.newValue) as User) : null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const login = async (usuario: string, password: string) => {
@@ -51,8 +65,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { access_token, user: userData } = response;
         
         // Guardar en localStorage
-        localStorage.setItem('token', access_token);
-        localStorage.setItem('user', JSON.stringify(userData));
+  localStorage.setItem('token', access_token);
+  localStorage.setItem('user', JSON.stringify(userData));
+        console.log('Token guardado en localStorage:', access_token);
         
         // Actualizar estado
         setToken(access_token);
@@ -78,11 +93,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
-  const isAuthenticated = !!token && !!user;
+  const effectiveToken = token ?? localStorage.getItem('token');
+  const effectiveUser = user ?? (() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? (JSON.parse(storedUser) as User) : null;
+  })();
+
+  const isAuthenticated = !!effectiveToken && !!effectiveUser;
 
   const value: AuthContextType = {
-    user,
-    token,
+    user: effectiveUser,
+    token: effectiveToken,
     login,
     logout,
     isAuthenticated,

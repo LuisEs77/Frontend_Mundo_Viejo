@@ -55,6 +55,14 @@ function App() {
             } 
           />
           <Route 
+            path="/mesas" 
+            element={
+              <ProtectedRoute>
+                <VistaMesas />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/mesas/:pasillo?" 
             element={
               <ProtectedRoute>

@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const CajeroView = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleCerrarSesion = () => {
-    console.log('Cerrando sesión...');
+    logout();
     navigate('/');
   };
 
